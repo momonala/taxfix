@@ -29,7 +29,7 @@ Notes:
    poetry install
    ```
 
-## Docker 🐳
+## 🐳 Docker
 
 ### Building and run the image/pipeline
 
@@ -44,7 +44,7 @@ docker run data-anonymization
 docker run data-anonymization pytest
 ```
 
-## Project Structure 📁
+## 📁 Project Structure
 
 ```
 .
@@ -65,7 +65,7 @@ docker run data-anonymization pytest
 │   └── test_database.py
 ```
 
-## Testing ✅
+## ✅ Testing
 
 The project was developed with test-driven-development, so I included my tests as well :)
 
@@ -87,3 +87,7 @@ src/generate_report.py         37     11    70%   78-103
 ---------------------------------------------------------
 TOTAL                         213     53    75%
 ```
+
+## 🔄 CI
+
+To demonstrate what a CI could like like, I also added a GitHub Actions pipeline builds and tests code in Docker containers on every push/PR to main. Uses layer caching for faster builds.
