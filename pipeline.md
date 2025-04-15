@@ -5,11 +5,9 @@
 ### Data Ingestion
 - Replace direct data-fetching API calls with a message queue (ex., RabbitMQ)
 - Use event based technique to fetch new data, instead of polling (ex. PubSub)
-- Support batch processing for better throughput
-- Implement retry mechanisms for failed requests
 
 ### Data Storage
-- Replace SQLite with a production-grade DB (ex., PostgreSQL, CloudSQL)
+- Replace SQLite with a production-grade DB (ex., PostgreSQL, CloudSQL, BigQuery)
 - Support DB migrations and rollbacks for schema changes (ex. Alembic)
 - Implement DB indexing and/or partitioning for better performance
 - Set up DB replication for high availability
@@ -32,16 +30,17 @@
 - Create error recovery procedures
 
 ### Data Quality
-- Improve data validation at ingestion (Cerberus for schema validation)
+- Improve data/schema validation at ingestion (ex. Cerberus)
 - Implement more robust data quality checks - partial data allowed?
 - Monitor/handle for data duplication
-- Create data quality dashboards
+- Create data quality dashboards, metrics, and/or alerts
 
 ## 3. Scalability & Performance
 
 ### Infrastructure
-- Implement horizontal scaling (K8s, or free with Dataflow)
+- Implement horizontal scaling (K8s, or comes for free with Dataflow)
 - Add load balancing, auto-scaling based on metrics
+- Identify cost/performance trade-offs with scaling vertically
 
 ### Performance
 - Implement database query optimization
@@ -86,19 +85,21 @@ title: Production Pipeline Architecture
 ---
 graph TB
     %% Components
-    API[External API]
+    API[External Faker API]
     PS[Cloud Pub/Sub]
     DF[Dataflow Pipeline]
     CS[(Cloud SQL)]
     DD[DataDog]
     GHA[GitHub Actions]
     ANS[Ansible]
+    DA[Data Analytics User]
     
     %% Styling
     classDef external fill:#f9f,stroke:#333,stroke-width:2px
     classDef gcp fill:#4285F4,stroke:#333,stroke-width:2px,color:white
     classDef monitoring fill:#FF9900,stroke:#333,stroke-width:2px,color:white
     classDef deployment fill:#34A853,stroke:#333,stroke-width:2px,color:white
+    classDef user fill:#E1BEE7,stroke:#333,stroke-width:2px
     
     %% Flow
     API -->|New Data Event| PS
@@ -106,6 +107,7 @@ graph TB
     DF -->|Process & Transform| DF
     DF -->|Write Anonymized Data| CS
     DF -->|Metrics & Logs| DD
+    CS -->|Query Anonymized Data| DA
     
     %% Deployment Flow
     GHA -->|Trigger Deploy| ANS
@@ -116,6 +118,7 @@ graph TB
     class PS,DF,CS gcp
     class DD monitoring
     class GHA,ANS deployment
+    class DA user
     
     %% Subgraph for Dataflow Pipeline
     subgraph Dataflow Pipeline
@@ -128,8 +131,9 @@ graph TB
     linkStyle 2 stroke:#2196F3,stroke-width:2px
     linkStyle 3 stroke:#2196F3,stroke-width:2px
     linkStyle 4 stroke:#FF9900,stroke-width:2px
-    linkStyle 5 stroke:#34A853,stroke-width:2px
+    linkStyle 5 stroke:#9C27B0,stroke-width:2px
     linkStyle 6 stroke:#34A853,stroke-width:2px
+    linkStyle 7 stroke:#34A853,stroke-width:2px
 ```
 
 > **Note**: This diagram is rendered automatically on GitHub. If you're viewing this elsewhere, here are alternative viewing options:
@@ -140,11 +144,12 @@ graph TB
 ### Diagram Components:
 
 1. **Data Flow**:
-   - External API generates new data events
-   - Cloud Pub/Sub receives events and triggers pipeline
-   - Dataflow pipeline processes and transforms data
-   - Anonymized data is written to Cloud SQL. CloudSQL was chosen over BigQuery for its ACID compliance, lower latency for real-time transactions, and cost-effectiveness for this smaller workload size
-   - Metrics and logs are sent to DataDog
+   - External Faker API generates new data events
+   - Cloud Pub/Sub receives events and triggers pipeline - the event-driven architecture enables loose coupling and real-time processing of data as it arrives.
+   - Dataflow pipeline processes and transforms data - Dataflow/Apache Beam was chosen as it provides serverless, auto-scaling data processing that can handle variable load and complex transformations.
+   - Anonymized data is written to Cloud SQL. CloudSQL was chosen over BigQuery for its ACID compliance (database concistency & reliability), lower latency for real-time transactions, and cost-effectiveness for this smaller workload size
+   - Metrics and logs are sent to DataDog - these can be used for monitoring, debugging, and targeted optimizations.
+   - Data Analytics Users can query the anonymized data directly from CloudSQL. IAM permissions would be set up at this level to define granular access to results.
 
 2. **Deployment Flow**:
    - GitHub Actions triggers deployments (ex. release or merge to main)
@@ -154,6 +159,7 @@ graph TB
 3. **Key Features**:
    - Event-driven architecture
    - Scalable processing with Dataflow
-   - Managed SQL database
-   - Real-time monitoring
-   - Automated deployment
+   - User facing SQL database
+   - Real-time monitoring with Datadog
+   - Automated deployment with CI + Ansible
+   - Data access for analytics via CloudSQL
