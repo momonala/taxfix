@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "taxfix"
+version = "0.1.0"
+description = "Taxfix interview - fetching data via API, anonymization, storage, and data analysis for person data"
+authors = ["Mohit Nalavadi <mnalavadi@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "2.*"
+email-validator = "2.*"
+freezegun = "1.*"
+sqlalchemy = "2.*"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "8.*"
+black = "24.*"
+isort = "5.*"
+mypy = "1.*"
+pytest-cov = "4.*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120
+target-version = ["py311"]
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 120
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "--cov=src --cov-report=term-missing --cov-report=html"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+] 
