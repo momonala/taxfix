@@ -143,11 +143,11 @@ graph TB
    - External API generates new data events
    - Cloud Pub/Sub receives events and triggers pipeline
    - Dataflow pipeline processes and transforms data
-   - Anonymized data is written to Cloud SQL
+   - Anonymized data is written to Cloud SQL. CloudSQL was chosen over BigQuery for its ACID compliance, lower latency for real-time transactions, and cost-effectiveness for this smaller workload size
    - Metrics and logs are sent to DataDog
 
 2. **Deployment Flow**:
-   - GitHub Actions triggers deployments
+   - GitHub Actions triggers deployments (ex. release or merge to main)
    - Ansible handles deployment to GCP
    - Pipeline updates are deployed to Dataflow
 

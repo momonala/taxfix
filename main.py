@@ -25,15 +25,15 @@ def main():
     logger.info(f"Database initialized at {DB_PATH}")
 
     # Fetch and anonymize data
-    logger.info("Starting data fetch and anonymization")
+    num_persons = 30000
+    logger.info(f"Starting data fetch and anonymization for {num_persons} persons")
     persons = fetch_persons(quantity=30000)
     if not persons:
         raise ValueError("No valid person data fetched from API")
     anonymized_persons = [anonymize_person(person) for person in persons]
-    logger.info(f"Anonymized {len(anonymized_persons)} persons")
+    logger.info(f"Found and anonymized {len(anonymized_persons)} persons - {len(anonymized_persons)/num_persons*100}%")
 
     # Save to database
-    logger.info("Saving anonymized data to database")
     db.write_persons(anonymized_persons)
     logger.info("Data successfully saved to database")
 
